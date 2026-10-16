@@ -20,6 +20,7 @@ import { Hero } from "./hero";
 import { Milestones } from "./milestones";
 import { PosterCard } from "./poster-card";
 import { StatCards } from "./stat-cards";
+import { WeeklyProject } from "./weekly-project";
 
 export function DashboardView() {
   const { today, progress } = useTracker();
@@ -29,6 +30,7 @@ export function DashboardView() {
     <div className="grid gap-5">
       <Hero />
       <StatCards />
+      <WeeklyProject />
 
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="grid min-w-0 content-start gap-5 lg:col-span-2">

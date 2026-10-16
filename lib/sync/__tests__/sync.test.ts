@@ -67,10 +67,10 @@ describe("SyncQueue", () => {
   it("starts pending preference writes synchronously when flushing on page hide", () => {
     const send = vi.fn(async () => {});
     const queue = new SyncQueue({ send });
-    queue.enqueue({ kind: "prefs", ui: { problemScrollY: 840 } });
+    queue.enqueue({ kind: "prefs", ui: { problemPage: 4 } });
     expect(send).not.toHaveBeenCalled();
     queue.flushNow();
-    expect(send).toHaveBeenCalledWith({ kind: "prefs", ui: { problemScrollY: 840 } });
+    expect(send).toHaveBeenCalledWith({ kind: "prefs", ui: { problemPage: 4 } });
     queue.destroy();
   });
   it("sends ticks immediately and in order", async () => {

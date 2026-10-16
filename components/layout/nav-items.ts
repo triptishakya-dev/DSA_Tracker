@@ -1,4 +1,4 @@
-import { Trophy, BarChart3, BookOpenCheck, LayoutDashboard, ListChecks, RotateCcw, Settings, type LucideIcon } from "lucide-react";
+import { FolderKanban, Trophy, BarChart3, BookOpenCheck, LayoutDashboard, ListChecks, RotateCcw, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -9,6 +9,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/problems", label: "All Problems", icon: ListChecks },
+  { href: "/projects", label: "Weekly Projects", icon: FolderKanban },
   { href: "/topics", label: "Topics", icon: BookOpenCheck },
   { href: "/revision", label: "Revision", icon: RotateCcw },
   { href: "/milestones", label: "Milestones", icon: Trophy },

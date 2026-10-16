@@ -41,7 +41,7 @@ const filtersPatch = z
 export const patchPreferencesSchema = z
   .object({
     mutation: z.object({ sessionId: z.uuid(), sequence: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER) }).strict().optional(),
-    ui: z.object({ problemScrollY: z.number().int().min(0).max(1_000_000).optional(), problemPage: z.number().int().min(1).max(10_000).optional(), problemLayout: z.enum(["grid", "list"]).optional(), theme: z.enum(["system", "light", "dark"]).optional(), sidebarCollapsed: z.boolean().optional(), activityRange: z.enum(["year", "30d", "7d"]).optional() }).strict().optional(),
+    ui: z.object({ problemPage: z.number().int().min(1).max(10_000).optional(), problemLayout: z.enum(["grid", "list"]).optional(), theme: z.enum(["system", "light", "dark"]).optional(), sidebarCollapsed: z.boolean().optional(), activityRange: z.enum(["year", "30d", "7d"]).optional() }).strict().optional(),
     filters: filtersPatch.optional(),
     celebratedMilestones: z.array(z.number().int().min(1).max(10_000)).max(50).optional(),
   })

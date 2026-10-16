@@ -47,7 +47,6 @@ export interface CompletionRecord {
 }
 
 export interface UiPreferences {
-  problemScrollY?: number;
   /** One-based page in the problems list. */
   problemPage?: number;
   problemLayout?: "grid" | "list";

@@ -144,13 +144,13 @@ describe("plan & preferences", () => {
     as(A);
     const sessionId = "af527943-689d-4e60-a4ea-451db92b508a";
     const filters = { ...DEFAULT_FILTERS, status: "pending", sort: "title" };
-    await prefsPATCH(req("PATCH", { mutation: { sessionId, sequence: 2 }, filters, ui: { problemPage: 3, problemLayout: "grid", problemScrollY: 867 } }));
-    await prefsPATCH(req("PATCH", { mutation: { sessionId, sequence: 1 }, filters: DEFAULT_FILTERS, ui: { problemPage: 1, problemLayout: "list", problemScrollY: 0 } }));
-    expect((await snapshot()).prefs).toMatchObject({ filters, ui: { problemPage: 3, problemLayout: "grid", problemScrollY: 867 } });
+    await prefsPATCH(req("PATCH", { mutation: { sessionId, sequence: 2 }, filters, ui: { problemPage: 3, problemLayout: "grid" } }));
+    await prefsPATCH(req("PATCH", { mutation: { sessionId, sequence: 1 }, filters: DEFAULT_FILTERS, ui: { problemPage: 1, problemLayout: "list" } }));
+    expect((await snapshot()).prefs).toMatchObject({ filters, ui: { problemPage: 3, problemLayout: "grid" } });
     // A newly reopened browser has a different session id, so its first save is accepted.
-    await prefsPATCH(req("PATCH", { mutation: { sessionId: "895a54da-bbbf-4986-a23d-9b7b0f6eab87", sequence: 1 }, ui: { problemScrollY: 900 } }));
-    expect((await snapshot()).prefs.ui?.problemScrollY).toBe(900);
-    await prefsPATCH(req("PATCH", { filters: DEFAULT_FILTERS, ui: { problemPage: 1, problemScrollY: 0, problemLayout: "list" } }));
+    await prefsPATCH(req("PATCH", { mutation: { sessionId: "895a54da-bbbf-4986-a23d-9b7b0f6eab87", sequence: 1 }, ui: { problemPage: 4 } }));
+    expect((await snapshot()).prefs.ui?.problemPage).toBe(4);
+    await prefsPATCH(req("PATCH", { filters: DEFAULT_FILTERS, ui: { problemPage: 1, problemLayout: "list" } }));
   });
 
   it("does not lose independent preference patches arriving concurrently", async () => {
@@ -163,26 +163,9 @@ describe("plan & preferences", () => {
     await prefsPATCH(req("PATCH", { ui: { problemPage: 1, problemLayout: "list" } }));
   });
 
-  it("saves scroll with the list view and resets it only when the view changes", async () => {
+  it("rejects scroll position preference writes", async () => {
     as(A);
-    await prefsPATCH(req("PATCH", { filters: DEFAULT_FILTERS, ui: { problemPage: 2, problemLayout: "grid", problemScrollY: 1480 } }));
-    expect((await snapshot()).prefs.ui).toMatchObject({ problemPage: 2, problemLayout: "grid", problemScrollY: 1480 });
-    await prefsPATCH(req("PATCH", { ui: { theme: "dark" } }));
-    expect((await snapshot()).prefs.ui?.problemScrollY).toBe(1480);
-    const exported = await (await exportGET(req("GET"))).text();
-    expect(parseImport(exported)?.prefs.ui?.problemScrollY).toBe(1480);
-    await prefsPATCH(req("PATCH", { ui: { problemPage: 3 } }));
-    expect((await snapshot()).prefs.ui?.problemScrollY).toBe(0);
-    await prefsPATCH(req("PATCH", { ui: { problemScrollY: 920 } }));
-    await prefsPATCH(req("PATCH", { ui: { problemLayout: "list" } }));
-    expect((await snapshot()).prefs.ui).toMatchObject({ problemPage: 3, problemScrollY: 0 });
-    await prefsPATCH(req("PATCH", { ui: { problemScrollY: 500 } }));
-    await prefsPATCH(req("PATCH", { filters: { query: "sum" } }));
-    expect((await snapshot()).prefs.ui).toMatchObject({ problemPage: 1, problemScrollY: 0 });
-    for (const problemScrollY of [-1, 1.5, 1000001]) {
-      expect((await prefsPATCH(req("PATCH", { ui: { problemScrollY } }))).status).toBe(400);
-    }
-    await prefsPATCH(req("PATCH", { filters: DEFAULT_FILTERS, ui: { problemPage: 1, problemScrollY: 0 } }));
+    expect((await prefsPATCH(req("PATCH", { ui: { problemScrollY: 840 } }))).status).toBe(400);
   });
 
   it("persists pagination with layout, preserves it for UI changes and resets for new filters", async () => {

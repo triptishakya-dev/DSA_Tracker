@@ -7,8 +7,10 @@ const DEFAULT_PREFS: Preferences = { ui: { theme: "system", sidebarCollapsed: fa
 
 function merge(stored: { filters: unknown; celebratedMilestones: number[]; ui?: unknown } | null): Preferences {
   if (!stored) return DEFAULT_PREFS;
+  const ui = { ...(stored.ui as Record<string, unknown> ?? {}) };
+  delete ui.problemScrollY;
   return {
-    ui: { ...DEFAULT_PREFS.ui!, ...(stored.ui as Partial<UiPreferences> ?? {}) },
+    ui: { ...DEFAULT_PREFS.ui!, ...ui },
     filters: sanitizeFilters(stored.filters),
     celebratedMilestones: stored.celebratedMilestones,
   };
@@ -35,9 +37,8 @@ export async function patchPreferences(
     }
     const filters = { ...current.filters, ...patch.filters };
     const filtersChanged = (Object.keys(filters) as (keyof Filters)[]).some((key) => filters[key] !== current.filters[key]);
-    const viewChanged = filtersChanged || (patch.ui?.problemPage !== undefined && patch.ui.problemPage !== (current.ui?.problemPage ?? 1)) || (patch.ui?.problemLayout !== undefined && patch.ui.problemLayout !== (current.ui?.problemLayout ?? "list"));
     const next: Preferences = {
-      ui: { ...current.ui!, ...(filtersChanged ? { problemPage: 1 } : {}), ...(viewChanged ? { problemScrollY: 0 } : {}), ...patch.ui },
+      ui: { ...current.ui!, ...(filtersChanged ? { problemPage: 1 } : {}), ...patch.ui },
       filters,
       celebratedMilestones: patch.celebratedMilestones ?? current.celebratedMilestones,
     };

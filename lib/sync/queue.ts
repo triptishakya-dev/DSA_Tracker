@@ -49,7 +49,7 @@ export class SyncQueue {
   }
 
   enqueue(op: SyncOp): void {
-    const delay = op.kind === "prefs" ? (op.filters?.query !== undefined && !op.ui ? this.o.debounceMs.prefs : 0) : op.kind === "row" && op.body.note !== undefined && op.body.completed === undefined ? this.o.debounceMs.note : 0;
+    const delay = op.kind === "prefs" ? this.o.debounceMs.prefs : op.kind === "row" && op.body.note !== undefined && op.body.completed === undefined ? this.o.debounceMs.note : 0;
     this.put(op, delay);
     this.state = "saving";
     this.emit();

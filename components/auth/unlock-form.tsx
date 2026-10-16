@@ -60,7 +60,7 @@ export function UnlockForm({ configured, returnTo }: { configured: boolean; retu
           <span className="mb-4 grid size-12 place-items-center rounded-2xl border border-primary/25 bg-primary/10 text-primary"><LockKeyhole aria-hidden className="size-6" /></span>
           <h2 id="unlock-title" className="font-heading text-xl font-semibold">Unlock your tracker</h2>
           <p className="mt-2 text-sm text-muted-foreground">Enter your four-digit PIN to pick up where you left off.</p>
-          {!configured ? <div role="alert" className="mt-5 rounded-xl border border-warning/35 bg-warning/10 p-4 text-sm"><p className="font-medium">Set up your private PIN first</p><p className="mt-2 leading-relaxed text-muted-foreground">Run <code>npm run pin:setup</code> locally, then add the generated server environment values to Vercel and redeploy.</p></div> : null}
+          {!configured ? <div role="alert" className="mt-5 rounded-xl border border-warning/35 bg-warning/10 p-4 text-sm"><p className="font-medium">Set up your private PIN first</p><p className="mt-2 leading-relaxed text-muted-foreground">Run <code>npm run pin:setup</code>, then restart your local app. For Vercel, add the generated server environment values and redeploy.</p></div> : null}
           <form onSubmit={submit} className="mt-6 grid gap-5">
             <div>
               <label htmlFor="owner-pin" className="mb-2 block text-xs font-medium text-muted-foreground">Four-digit PIN</label>

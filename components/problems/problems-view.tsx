@@ -1,11 +1,10 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react";
 import { EmptyState } from "@/components/common/empty-state";
 import { QuoteCard } from "@/components/common/quote-card";
 import { Button } from "@/components/ui/button";
-import { useProblemScroll } from "@/hooks/use-problem-scroll";
 import { useTracker } from "@/hooks/use-tracker";
 import { PROBLEMS } from "@/lib/problems";
 import { DIFFICULT_PROBLEM_QUOTES, dailyQuote } from "@/lib/quotes";
@@ -16,7 +15,7 @@ import { ProblemCard } from "./problem-card";
 const PAGE_SIZE = 20;
 
 export function ProblemsView() {
-  const { filtered, filters, setFilters, today, progress, setUi, ready, flushSaves } = useTracker();
+  const { filtered, filters, setFilters, today, progress, setUi, ready } = useTracker();
   const layout = progress.prefs.ui?.problemLayout ?? "list";
   const setLayout = (problemLayout: "grid" | "list") => setUi({ problemLayout });
   const savedPage = progress.prefs.ui?.problemPage ?? 1;
@@ -31,12 +30,6 @@ export function ProblemsView() {
     if (ready && savedPage !== page) setUi({ problemPage: page });
   }, [ready, savedPage, page, setUi]);
   const slice = filtered.slice(cur * PAGE_SIZE, (cur + 1) * PAGE_SIZE);
-  const saveScroll = useCallback((problemScrollY: number) => setUi({ problemScrollY }), [setUi]);
-  useProblemScroll({
-    ready, viewKey: JSON.stringify([filters, page, layout]),
-    savedY: progress.prefs.ui?.problemScrollY ?? 0,
-    save: saveScroll, flush: flushSaves,
-  });
 
   return (
     <div className="grid gap-4">

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { hashPin, verifyPin } from "@/lib/auth/pin";
+import { isPinHash, hashPin, verifyPin } from "@/lib/auth/pin";
 import { localBypass, newSession, pinConfig, readSession, safeReturnTo } from "@/lib/auth/session";
 const config = { ownerId: "dev-user", pinHash: hashPin("0007"), secret: "a-test-secret-with-at-least-32-characters" };
 afterEach(() => vi.unstubAllEnvs());
@@ -10,6 +10,15 @@ describe("private PIN and sessions", () => {
     expect(verifyPin("007", config.pinHash)).toBe(false);
     expect(hashPin("0007")).not.toBe(config.pinHash);
     expect(() => hashPin("abcd")).toThrow();
+  });
+  it("writes environment-safe hashes and accepts legacy hashes", () => {
+    const encoded = hashPin("0007");
+    expect(encoded).not.toContain("$");
+    expect(isPinHash(encoded)).toBe(true);
+    const legacy = encoded.replaceAll(":", "$");
+    expect(isPinHash(legacy)).toBe(true);
+    expect(verifyPin("0007", legacy)).toBe(true);
+    expect(isPinHash(encoded.replace(":", "$"))).toBe(false);
   });
   it("rejects tampering, malformed cookies, expiry, changed PIN and changed owner", () => {
     const now = Date.UTC(2026,9,15);

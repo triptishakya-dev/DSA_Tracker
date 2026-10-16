@@ -97,8 +97,12 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
     const beforeUnload = (e: BeforeUnloadEvent) => {
       if (controller.hasPending()) { e.preventDefault(); e.returnValue = ""; }
     };
+    const flush = () => controller.flushOnExit(ref.current);
+    const hide = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", hide);
     window.addEventListener("beforeunload", beforeUnload);
-    return () => { active = false; controller.destroy(); controllerRef.current = null; window.removeEventListener("beforeunload", beforeUnload); };
+    return () => { active = false; controller.destroy(); controllerRef.current = null; window.removeEventListener("beforeunload", beforeUnload); window.removeEventListener("pagehide", flush); document.removeEventListener("visibilitychange", hide); };
   }, [attempt]);
 
   useEffect(() => {
@@ -142,8 +146,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
 
   const setUi = useCallback((patch: Partial<UiPreferences>) => {
     const prev = ref.current;
-    const viewChanged = (patch.problemPage !== undefined && patch.problemPage !== (prev.prefs.ui?.problemPage ?? 1)) || (patch.problemLayout !== undefined && patch.problemLayout !== (prev.prefs.ui?.problemLayout ?? "list"));
-    commit({ ...prev, prefs: { ...prev.prefs, ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, ...(viewChanged ? { problemScrollY: 0 } : {}), ...patch } } });
+    commit({ ...prev, prefs: { ...prev.prefs, ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, ...patch } } });
   }, [commit]);
 
   const toggleComplete = useCallback(
@@ -192,7 +195,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
       commit({ ...prev, prefs: {
         ...prev.prefs,
         filters: { ...prev.prefs.filters, ...patch },
-        ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, ...(changed ? { problemPage: 1, problemScrollY: 0 } : {}) },
+        ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, ...(changed ? { problemPage: 1 } : {}) },
       } });
     },
     [commit],
@@ -200,7 +203,7 @@ export function TrackerProvider({ children }: { children: ReactNode }) {
 
   const clearFilters = useCallback(() => {
     const prev = ref.current;
-    commit({ ...prev, prefs: { ...prev.prefs, ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, problemPage: 1, problemScrollY: 0 }, filters: { ...DEFAULT_FILTERS, sort: prev.prefs.filters.sort } } });
+    commit({ ...prev, prefs: { ...prev.prefs, ui: { theme: "system", sidebarCollapsed: false, ...prev.prefs.ui, problemPage: 1 }, filters: { ...DEFAULT_FILTERS, sort: prev.prefs.filters.sort } } });
   }, [commit]);
 
   const exclusive = useCallback(async (action: (c: SyncController) => Promise<unknown>) => {

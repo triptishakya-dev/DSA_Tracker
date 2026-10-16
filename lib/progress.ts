@@ -64,7 +64,6 @@ export function validateProgress(raw: unknown, knownIds?: ReadonlySet<string>): 
       out.prefs.ui = {
         theme: ui.theme === "dark" || ui.theme === "light" ? ui.theme : "system",
         sidebarCollapsed: ui.sidebarCollapsed === true,
-        ...(typeof ui.problemScrollY === "number" && Number.isInteger(ui.problemScrollY) && ui.problemScrollY >= 0 && ui.problemScrollY <= 1_000_000 ? { problemScrollY: ui.problemScrollY } : {}),
         ...(typeof ui.problemPage === "number" && Number.isInteger(ui.problemPage) && ui.problemPage >= 1 && ui.problemPage <= 10_000 ? { problemPage: ui.problemPage } : {}),
         ...(ui.problemLayout === "grid" || ui.problemLayout === "list" ? { problemLayout: ui.problemLayout } : {}),
         ...(ui.activityRange === "year" || ui.activityRange === "30d" || ui.activityRange === "7d" ? { activityRange: ui.activityRange } : {}),

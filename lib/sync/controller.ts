@@ -56,16 +56,15 @@ export class SyncController {
   flushOnExit(progress: Progress) {
     if (this.destroyed || this.exclusive || this.mode !== "synced") return;
     this.queue.flushNow();
+    // A lone preference request already uses keepalive. Only send a full
+    // fallback when newer preferences are waiting behind another request.
+    const pending = this.queue.pendingOps();
+    if (!pending.slice(1).some((op) => op.kind === "prefs")) return;
     const patch = { filters: progress.prefs.filters, ui: progress.prefs.ui, celebratedMilestones: progress.prefs.celebratedMilestones };
     const key = JSON.stringify(patch);
     if (key === this.exitSnapshotKey) return;
     this.exitSnapshotKey = key;
-    // Initiate a full keepalive request even if the ordinary queue is still busy.
-    // Server-side sequence checks prevent older in-flight saves overwriting it.
-    void api.patchPreferences(patch).catch(() => {
-      this.exitSnapshotKey = "";
-      if (!this.destroyed) this.queue.flushNow();
-    });
+    void api.patchPreferences(patch).catch(() => { this.exitSnapshotKey = ""; });
   }
   hasPending() { return this.status.pending > 0 || this.rejected.size > 0; }
   retry() {

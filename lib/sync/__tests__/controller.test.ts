@@ -75,20 +75,51 @@ describe("API persistence", () => {
   });
 
 
-  it("sends a complete exit snapshot even while the normal preference queue is busy", async () => {
+  it("does not save preferences on exit when nothing changed or saves already finished", async () => {
     const { controller } = setup(); await controller.start();
-    vi.mocked(api.patchPreferences).mockImplementationOnce(() => new Promise(() => {})).mockResolvedValue(undefined);
-    const before = defaultProgress();
+    controller.flushOnExit(defaultProgress());
+    expect(api.patchPreferences).not.toHaveBeenCalled();
+    const next = defaultProgress(); next.prefs.ui!.problemPage = 3;
+    controller.track(defaultProgress(), next);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(api.patchPreferences).toHaveBeenCalledOnce();
+    controller.flushOnExit(defaultProgress());
+    expect(api.patchPreferences).toHaveBeenCalledOnce();
+    controller.destroy();
+  });
+
+  it("uses one exit fallback only when newer preferences are blocked by an in-flight save", async () => {
+    const { controller } = setup(); await controller.start();
+    let finish!: () => void;
+    vi.mocked(api.patchPreferences).mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; })).mockResolvedValue(undefined);
     const changed = defaultProgress(); changed.prefs.ui!.problemPage = 3;
-    controller.track(before, changed);
-    await vi.advanceTimersByTimeAsync(0);
-    const final = { ...changed, prefs: { ...changed.prefs, ui: { ...changed.prefs.ui!, problemLayout: "grid" as const, problemScrollY: 867 } } };
+    controller.track(defaultProgress(), changed);
+    controller.flushOnExit(defaultProgress());
+    expect(api.patchPreferences).toHaveBeenCalledOnce();
+    const final = { ...changed, prefs: { ...changed.prefs, ui: { ...changed.prefs.ui!, problemLayout: "grid" as const } } };
     controller.track(changed, final);
-    controller.flushOnExit(final);
+    controller.flushOnExit(final); controller.flushOnExit(final);
     expect(api.patchPreferences).toHaveBeenCalledTimes(2);
-    expect(api.patchPreferences).toHaveBeenLastCalledWith({ filters: final.prefs.filters, ui: final.prefs.ui, celebratedMilestones: final.prefs.celebratedMilestones });
-    controller.flushOnExit(final);
-    expect(api.patchPreferences).toHaveBeenCalledTimes(2);
+    finish();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(api.patchPreferences).toHaveBeenCalledTimes(3);
+    expect(api.patchPreferences).toHaveBeenLastCalledWith(expect.objectContaining({ ui: final.prefs.ui }));
+    controller.destroy();
+  });
+
+  it("batches quick search, pagination and layout changes into one preference request", async () => {
+    const { controller } = setup(); await controller.start();
+    const page = defaultProgress(); page.prefs.ui!.problemPage = 3;
+    controller.track(defaultProgress(), page);
+    await vi.advanceTimersByTimeAsync(200);
+    const search = { ...page, prefs: { ...page.prefs, filters: { ...page.prefs.filters, query: "sum" }, ui: { ...page.prefs.ui!, problemPage: 1 } } };
+    controller.track(page, search);
+    await vi.advanceTimersByTimeAsync(200);
+    const layout = { ...search, prefs: { ...search.prefs, ui: { ...search.prefs.ui!, problemLayout: "grid" as const } } };
+    controller.track(search, layout);
+    expect(api.patchPreferences).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(api.patchPreferences).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ filters: { query: "sum" }, ui: layout.prefs.ui }));
     controller.destroy();
   });
 
