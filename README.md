@@ -43,6 +43,7 @@ public/images/                  motivation posters (kebab-case names), listed in
 
 ## Saving to a database (API + sync)
 
+
 Progress, notes, revision flags, filters and UI preferences can be saved to Postgres through a JSON API; the UI stays instant and writes in the background (offline changes queue and retry). Design: [PRISMA_PLAN.md](PRISMA_PLAN.md), [API_IMPLEMENTATION_PLAN.md](API_IMPLEMENTATION_PLAN.md).
 
 ```bash
