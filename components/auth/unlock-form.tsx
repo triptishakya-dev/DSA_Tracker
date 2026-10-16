@@ -50,8 +50,8 @@ export function UnlockForm({ configured, returnTo }: { configured: boolean; retu
       <button type="button" aria-label={`Switch to ${dark ? "light" : "dark"} theme`} onClick={() => setTheme(dark ? "light" : "dark")} className="absolute right-4 top-4 grid size-11 place-items-center rounded-full border border-border bg-card text-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring sm:right-6 sm:top-6">{dark ? <Sun aria-hidden className="size-5" /> : <Moon aria-hidden className="size-5" />}</button>
       <div className="grid w-full max-w-4xl gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
         <div className="text-center lg:text-left">
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"><Code2 aria-hidden className="size-4" /> Nikhil’s DSA space</span>
-          <h1 className="text-balance font-heading text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Welcome back, Nikhil <span aria-hidden>👋</span></h1>
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"><Code2 aria-hidden className="size-4" /> Tripti’s DSA space</span>
+          <h1 className="text-balance font-heading text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Welcome back, Tripti <span aria-hidden>👋</span></h1>
           <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground lg:mx-0">Let’s practice DSA and work toward your next product-based company.</p>
           <p className="mt-5 text-sm font-medium text-primary">One problem at a time. Consistency builds confidence.</p>
           <div className="mt-7 hidden flex-wrap gap-3 text-xs text-muted-foreground lg:flex">{["452 problems", "Your pace", "Your progress"].map((item) => <span key={item} className="inline-flex items-center gap-1.5"><Check aria-hidden className="size-3.5 text-success" />{item}</span>)}</div>
